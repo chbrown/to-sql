@@ -1,0 +1,33 @@
+{
+  "name": "excel-sql",
+  "version": "0.0.0",
+  "description": "Create SQL database from Excel spreadsheet",
+  "keywords": [
+    "excel",
+    "sql",
+    "convert",
+    "import",
+    "export"
+  ],
+  "homepage": "https://github.com/chbrown/excel-sql",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chbrown/excel-sql.git"
+  },
+  "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.2",
+    "loge": "1.0.4",
+    "sqlcmd-pg": "1.1.1",
+    "xlsx": "^0.8.0",
+    "yargs": "^3.32.0"
+  },
+  "devDependencies": {
+    "declarations": "*",
+    "typescript": "*"
+  },
+  "bin": {
+    "excel-sql": "bin/excel-sql.js"
+  }
+}
