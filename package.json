@@ -1,6 +1,6 @@
 {
   "name": "excel-sql",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Create SQL database from Excel spreadsheet",
   "keywords": [
     "excel",
