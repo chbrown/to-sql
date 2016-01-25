@@ -32,7 +32,13 @@ const regExpTests = [
   {
     // INTEGER is a subset of some DATE formats, so it must come after
     id: 'INTEGER',
-    // INTEGER: '-100', '0', '99' (but not '-')
+    // INTEGER: '-100', '0', '99' (but not '-' or '9223372036854775808')
+    regExp: /^-?\d{1,10}$/
+  },
+  {
+    // BIGINT is a superset of INTEGER, but we want to prefer INTEGER if possible
+    id: 'BIGINT',
+    // BIGINT: '-1000000000000000000', '0', or '9223372036854775808' (but not '-')
     regExp: /^-?\d+$/
   },
   {
