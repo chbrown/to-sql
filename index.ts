@@ -78,10 +78,11 @@ export function createTable(worksheet: xlsx.IWorkSheet,
                             db: Connection,
                             callback: (error?: Error) => void) {
   const [columns, ...rows] = excel.readTable(worksheet);
-  const columnDeclarations = columns.map((columnName, i) => {
+  const columnDeclarations = columns.map((column, i) => {
+    const columnName = toIdentifier(column || `column_${i}`);
     const values = rows.map(row => row[i]);
     const columnType = inferColumnType(values);
-    return `${toIdentifier(columnName)} ${columnType}`;
+    return `"${columnName}" ${columnType}`;
   });
 
   logger.info(`Creating table ${table}`);
