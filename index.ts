@@ -125,3 +125,20 @@ export function createDatabase(workbook: xlsx.IWorkBook,
     }, callback);
   });
 }
+
+export function describeWorkbook(workbook: xlsx.IWorkBook,
+                                 database: string,
+                                 callback: (error?: Error) => void) {
+
+  console.log('workbook.Props', workbook.Props);
+  console.log('workbook.SheetNames', workbook.SheetNames);
+
+  workbook.SheetNames.forEach(sheetName => {
+    console.log(`workbook.Sheet[${sheetName}]`);
+    const worksheet = workbook.Sheets[sheetName];
+    const range = <string><any>worksheet['!ref'];
+    console.log(`  range: ${range}`);
+  });
+
+  setImmediate(callback);
+}
