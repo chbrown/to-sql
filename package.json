@@ -29,5 +29,8 @@
   },
   "bin": {
     "excel-sql": "bin/excel-sql.js"
+  },
+  "scripts": {
+    "prepublish": "make"
   }
 }
