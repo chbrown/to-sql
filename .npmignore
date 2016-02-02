@@ -1,4 +1,4 @@
-bin/excel-sql.ts
+bin/to-sql.ts
 excel.ts
 index.ts
 Makefile

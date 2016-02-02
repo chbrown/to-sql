@@ -1,6 +1,6 @@
-bin/excel-sql.js
+bin/to-sql.js
 excel.js
 index.js
-bin/excel-sql.d.ts
+bin/to-sql.d.ts
 excel.d.ts
 index.d.ts

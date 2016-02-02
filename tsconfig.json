@@ -9,7 +9,7 @@
     "node_modules/declarations/pg/pg.d.ts",
     "node_modules/declarations/xlsx/xlsx.d.ts",
     "node_modules/declarations/yargs/yargs.d.ts",
-    "bin/excel-sql.ts",
+    "bin/to-sql.ts",
     "excel.ts",
     "index.ts"
   ]

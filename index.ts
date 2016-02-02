@@ -1,9 +1,26 @@
 import * as async from 'async';
+import {basename, extname} from 'path';
+import {createReadStream} from 'fs';
 import {logger} from 'loge';
 import {Connection} from 'sqlcmd-pg';
 import * as xlsx from 'xlsx';
+import {Parser} from 'sv';
 
 import * as excel from './excel';
+
+interface RawTable {
+  name: string;
+  data: string[][];
+}
+
+function createLocalConnection(database: string): Connection {
+  const db = new Connection({host: '127.0.0.1', port: 5432, database});
+  // connect db log events to local logger
+  db.on('log', (ev) => {
+    logger.debug(ev.format, ...ev.args);
+  });
+  return db;
+}
 
 /**
 Prepare a string for use as a database identifier, like a table or column name.
@@ -19,11 +36,25 @@ export function toIdentifier(input: string) {
     .replace(/\s+/g, '_');
 }
 
+/**
+Cut off the basename part of a filepath, without the extension, for use as a database identifier.
+*/
+export function pathToIdentifier(path: string) {
+  let ext = extname(path);
+  let base = basename(path, ext);
+  return toIdentifier(base);
+}
+
 function isEmpty(value: string): boolean {
   return (value === undefined) || /^\s*$/.test(value);
 }
 
 const regExpTests = [
+  {
+    id: 'DATETIME',
+    // DATETIME: '2016-01-18T01:45:53Z', '2016-01-18 15:10:20'
+    regExp: /^[12]\d{3}(-?)[01]\d\1[0123]\d[T ][012]?\d:[0-5]\d(:[0-5]\d)?Z?$/
+  },
   {
     id: 'DATE',
     // DATE: '2016-01-18', '20160118' (but not '2016-01-40', '2016-0118', or '201601-18')
@@ -54,7 +85,11 @@ const regExpTests = [
   },
 ];
 
-function inferColumnType(values: string[]) {
+/**
+@param {string[]} values -
+@returns {string} A SQL column definition, e.g., "created_at TIMESTAMP NOT NULL"
+*/
+function inferColumnType(values: string[]): string {
   const nonEmptyValues = values.filter(value => !isEmpty(value));
   let dataType = 'TEXT';
   if (nonEmptyValues.length > 0) {
@@ -73,11 +108,12 @@ function inferColumnType(values: string[]) {
   ].join(' ');
 }
 
-export function createTable(worksheet: xlsx.IWorkSheet,
-                            table: string,
-                            db: Connection,
+export function createTable(database: string,
+                            name: string,
+                            data: string[][],
                             callback: (error?: Error) => void) {
-  const [columns, ...rows] = excel.readTable(worksheet);
+  const db = createLocalConnection(database);
+  const [columns, ...rows] = data;
   const columnDeclarations = columns.map((column, i) => {
     const columnName = toIdentifier(column || `column_${i}`);
     const values = rows.map(row => row[i]);
@@ -85,8 +121,9 @@ export function createTable(worksheet: xlsx.IWorkSheet,
     return `"${columnName}" ${columnType}`;
   });
 
-  logger.info(`Creating table ${table}`);
-  db.CreateTable(table)
+  const tableIdentifier = toIdentifier(name);
+  logger.info(`Creating table ${tableIdentifier}`);
+  db.CreateTable(tableIdentifier)
   .add(...columnDeclarations)
   .execute(error => {
     if (error) return callback(error);
@@ -98,47 +135,41 @@ export function createTable(worksheet: xlsx.IWorkSheet,
         let argIndex = args.push(value);
         return `$${argIndex}`;
       });
-      db.executeSQL(`INSERT INTO ${table} VALUES (${values.join(', ')})`, args, callback);
+      db.executeSQL(`INSERT INTO ${tableIdentifier} VALUES (${values.join(', ')})`, args, callback);
     }, callback);
   });
 }
 
-export function createDatabase(workbook: xlsx.IWorkBook,
-                               database: string,
-                               callback: (error?: Error) => void) {
-  const db = new Connection({host: '127.0.0.1', port: 5432, database});
-
-  // connect db log events to local logger
-  db.on('log', (ev) => {
-    logger.debug(ev.format, ...ev.args);
-  });
-
-  logger.info(`Creating database ${database}`);
-  return db.createDatabase(error => {
-    if (error) return callback(error);
-
-    // could be async.each, no problem
-    async.eachSeries(workbook.SheetNames, (sheetName, callback) => {
-      const worksheet = workbook.Sheets[sheetName];
-      const table = toIdentifier(sheetName);
-      createTable(worksheet, table, db, callback);
-    }, callback);
-  });
+export function createDatabase(name: string, callback: (error?: Error) => void) {
+  logger.info(`Creating database ${name}`);
+  const db = createLocalConnection(name);
+  return db.createDatabase(callback);
 }
 
-export function describeWorkbook(workbook: xlsx.IWorkBook,
-                                 database: string,
-                                 callback: (error?: Error) => void) {
-
-  console.log('workbook.Props', workbook.Props);
-  console.log('workbook.SheetNames', workbook.SheetNames);
-
-  workbook.SheetNames.forEach(sheetName => {
-    console.log(`workbook.Sheet[${sheetName}]`);
+/**
+Read RawTable objects from Excel spreadsheet (no identifier sanitization)
+*/
+export function readExcel(filename: string): RawTable[] {
+  const workbook = xlsx.readFile(filename, {});
+  return workbook.SheetNames.map(sheetName => {
     const worksheet = workbook.Sheets[sheetName];
-    const range = <string><any>worksheet['!ref'];
-    console.log(`  range: ${range}`);
+    const data = excel.readTable(worksheet);
+    return {name: sheetName, data};
   });
+}
 
-  setImmediate(callback);
+export function readSV(filename: string, callback: (error: Error, table?: RawTable) => void) {
+  let name = pathToIdentifier(filename);
+  let objects: {[index: string]: string}[] = [];
+  createReadStream(filename).pipe(new Parser())
+  .on('error', error => callback(error))
+  .on('data', object => objects.push(object))
+  .on('end', () => {
+    // TODO: customizing sv.Parser so that we can get out string[] rows if we want
+    const columns = Object.keys(objects[0]);
+    const rows = objects.map(object => {
+      return columns.map(column => object[column]);
+    });
+    callback(null, {name, data: [columns, ...rows]});
+  });
 }

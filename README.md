@@ -1,14 +1,14 @@
-## excel-sql
+## to-sql
 
-[![npm version](https://badge.fury.io/js/excel-sql.svg)](https://www.npmjs.com/package/excel-sql)
+[![npm version](https://badge.fury.io/js/to-sql.svg)](https://www.npmjs.com/package/to-sql)
 
 Node.js script to read an Excel spreadsheet into a PostgreSQL database.
 
-    $ npm install -g excel-sql
+    $ npm install -g to-sql
 
 Example:
 
-    $ excel-sql MySpreadsheet.xlsx
+    $ to-sql MySpreadsheet.xlsx
     Creating database MySpreadsheet
     Creating table Sheet1
     Inserting 171 rows

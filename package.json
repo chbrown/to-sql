@@ -1,7 +1,7 @@
 {
-  "name": "excel-sql",
+  "name": "to-sql",
   "version": "0.0.3",
-  "description": "Create SQL database from Excel spreadsheet",
+  "description": "Create SQL database from tabular data",
   "keywords": [
     "excel",
     "sql",
@@ -9,10 +9,10 @@
     "import",
     "export"
   ],
-  "homepage": "https://github.com/chbrown/excel-sql",
+  "homepage": "https://github.com/chbrown/to-sql",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chbrown/excel-sql.git"
+    "url": "https://github.com/chbrown/to-sql.git"
   },
   "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
   "license": "MIT",
@@ -20,6 +20,7 @@
     "async": "^1.5.2",
     "loge": "1.0.4",
     "sqlcmd-pg": "1.1.1",
+    "sv": "0.3.10",
     "xlsx": "^0.8.0",
     "yargs": "^3.32.0"
   },
@@ -28,7 +29,7 @@
     "typescript": "*"
   },
   "bin": {
-    "excel-sql": "bin/excel-sql.js"
+    "to-sql": "bin/to-sql.js"
   },
   "scripts": {
     "prepublish": "make"
