@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {logger, Level} from 'loge';
 import * as async from 'async';
-import * as yargs from 'yargs';
+import * as optimist from 'optimist';
 
 import {pathToIdentifier, createDatabase, createTable, readExcel, readSV} from '../index';
 
@@ -15,33 +15,33 @@ function exit(error?: Error) {
 }
 
 function main() {
-  let argvparser = yargs
+  let argvparser = optimist
   .usage('Usage: to-sql --excel MySpreadsheet.xlsx')
   .options({
     database: {
-      description: 'database name to use',
+      describe: 'database name to use',
       type: 'string',
     },
     excel: {
-      description: 'excel file to read (one table per worksheet)',
+      describe: 'excel file to read (one table per worksheet)',
       type: 'string',
     },
     sv: {
-      description: 'sv files to read (one table per file)',
+      describe: 'sv files to read (one table per file)',
       type: 'array',
     },
     help: {
       alias: 'h',
-      description: 'print this help message',
+      describe: 'print this help message',
       type: 'boolean',
     },
     verbose: {
       alias: 'v',
-      description: 'print extra output',
+      describe: 'print extra output',
       type: 'boolean',
     },
     version: {
-      description: 'print version',
+      describe: 'print version',
       type: 'boolean',
     },
   });
@@ -57,7 +57,7 @@ function main() {
   }
 
   if (argv.help) {
-    yargs.showHelp();
+    argvparser.showHelp();
   }
   else if (argv.version) {
     console.log(require('./package').version);

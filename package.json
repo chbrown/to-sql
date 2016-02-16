@@ -19,10 +19,10 @@
   "dependencies": {
     "async": "^1.5.2",
     "loge": "1.0.4",
+    "optimist": "^0.6.1",
     "sqlcmd-pg": "1.1.1",
     "sv": "0.3.10",
-    "xlsx": "^0.8.0",
-    "yargs": "^3.32.0"
+    "xlsx": "^0.8.0"
   },
   "devDependencies": {
     "declarations": "*",
