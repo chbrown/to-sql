@@ -24,6 +24,8 @@ function createLocalConnection(database: string): Connection {
 
 /**
 Prepare a string for use as a database identifier, like a table or column name.
+
+It is idempotent (can be run multiple times with no ill effect)
 */
 export function toIdentifier(input: string) {
   return input
@@ -70,7 +72,7 @@ const regExpTests = [
     // BIGINT is a superset of INTEGER, but we want to prefer INTEGER if possible
     id: 'BIGINT',
     // BIGINT: '-1000000000000000000', '0', or '9223372036854775808' (but not '-')
-    regExp: /^-?\d+$/
+    regExp: /^-?\d{1,19}$/
   },
   {
     // REAL is a subset of INTEGER, so it must come after
@@ -115,13 +117,13 @@ export function createTable(database: string,
   const db = createLocalConnection(database);
   const [columns, ...rows] = data;
   const columnDeclarations = columns.map((column, i) => {
-    const columnName = toIdentifier(column || `column_${i}`);
+    const columnName = toIdentifier(column || `column_${i}`).toLowerCase();
     const values = rows.map(row => row[i]);
     const columnType = inferColumnType(values);
     return `"${columnName}" ${columnType}`;
   });
 
-  const tableIdentifier = toIdentifier(name);
+  const tableIdentifier = toIdentifier(name).toLowerCase();
   logger.info(`Creating table ${tableIdentifier}`);
   db.CreateTable(tableIdentifier)
   .add(...columnDeclarations)
@@ -143,7 +145,7 @@ export function createTable(database: string,
 export function createDatabase(name: string, callback: (error?: Error) => void) {
   logger.info(`Creating database ${name}`);
   const db = createLocalConnection(name);
-  return db.createDatabase(callback);
+  return db.createDatabaseIfNotExists(callback);
 }
 
 /**
