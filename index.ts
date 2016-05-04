@@ -134,7 +134,7 @@ export function createTable(database: string,
     async.eachSeries(rows, (row, callback) => {
       let args: any[] = [];
       let values = row.map(value => {
-        let argIndex = args.push(value);
+        let argIndex = args.push(isEmpty(value) ? null : value);
         return `$${argIndex}`;
       });
       db.executeSQL(`INSERT INTO ${tableIdentifier} VALUES (${values.join(', ')})`, args, callback);
