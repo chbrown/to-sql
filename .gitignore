@@ -1,6 +1,3 @@
 bin/to-sql.js
 excel.js
 index.js
-bin/to-sql.d.ts
-excel.d.ts
-index.d.ts

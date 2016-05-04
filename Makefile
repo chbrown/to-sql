@@ -10,7 +10,7 @@ $(BIN)/tsc:
 	echo $(TYPESCRIPT) Makefile tsconfig.json | tr ' ' '\n' > $@
 
 .gitignore: tsconfig.json
-	echo $(TYPESCRIPT:%.ts=%.js) $(TYPESCRIPT:%.ts=%.d.ts) | tr ' ' '\n' > $@
+	echo $(TYPESCRIPT:%.ts=%.js) | tr ' ' '\n' > $@
 
 %.js: %.ts $(BIN)/tsc
 	$(BIN)/tsc
