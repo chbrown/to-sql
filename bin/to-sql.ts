@@ -63,7 +63,7 @@ function main() {
     console.log(require('./package').version);
   }
   else {
-    argvparser = argvparser.argv;
+    argv = argvparser.argv;
     const database = argv.database;
     const excelPaths = [...(argv.excel ? [argv.excel] : []), ...argv._.filter(arg => /\.xlsx$/.test(arg))];
     const svPaths = [...(argv.sv || []), ...argv._.filter(arg => !/\.xlsx$/.test(arg))];
