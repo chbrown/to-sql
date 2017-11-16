@@ -1,7 +1,7 @@
 import * as xlsx from 'xlsx';
 
 function createRange(start: number, end: number): number[] {
-  let indices: number[] = new Array(end - start);
+  const indices: number[] = new Array(end - start);
   for (let index = start; index < end; index++) {
     indices[index - start] = index;
   }
@@ -70,7 +70,7 @@ encodeCol(27*26) => 'AAA'
 
 It's a weird arithemetic.
 */
-export function encodeCol(col: number) {
+export function encodeCol(col: number): string {
   var s = '';
   col++;
   do {
@@ -80,14 +80,14 @@ export function encodeCol(col: number) {
   return s;
 }
 
-function formatCell(cell: xlsx.IWorkSheetCell) {
+function formatCell(cell: xlsx.CellObject): string {
   if (cell === undefined) {
     return undefined;
   }
   // cell.t can be one of 'b', 'e', 'n', or 's' ('d' is only available if options.cellDates is set)
   if (cell.t == 'b') {
     // Type b is the Boolean type. v is interpreted according to JS truth tables
-    return cell.v;
+    return String(cell.v);
   }
   else if (cell.t == 'e') {
     // Type e is the Error type. v holds the number and w holds the common name
@@ -95,19 +95,19 @@ function formatCell(cell: xlsx.IWorkSheetCell) {
   }
   else if (cell.t == 'n') {
     // Type n is the Number type. This includes all forms of data that Excel stores as numbers, such as dates/times and Boolean fields. Excel exclusively uses data that can be fit in an IEEE754 floating point number, just like JS Number, so the v field holds the raw number. The w field holds formatted text.
-    return cell.v; // or cell.w ?
+    return String(cell.v); // or cell.w ?
   }
   else if (cell.t == 's') {
     // Type s is the String type. v should be explicitly stored as a string to avoid possible confusion.
-    return cell.w ? cell.w : cell.v;
+    return cell.w ? cell.w : String(cell.v);
   }
 }
 
-export function readTable(sheet: xlsx.IWorkSheet) {
+export function readTable(sheet: xlsx.WorkSheet): string[][] {
   const range = decodeRange(<any>sheet['!ref']);
   const columns = createRange(range.s.c, range.e.c + 1).map(encodeCol);
   return createRange(range.s.r, range.e.r + 1).map(rowIndex => {
-    let rowEncoding = encodeRow(rowIndex);
+    const rowEncoding = encodeRow(rowIndex);
     return columns.map(colEncoding => formatCell(sheet[colEncoding + rowEncoding]));
   });
 }

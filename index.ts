@@ -2,7 +2,7 @@ import * as async from 'async';
 import {basename, extname} from 'path';
 import {createReadStream} from 'fs';
 import {logger} from 'loge';
-import {Connection} from 'sqlcmd-pg';
+import {Connection} from 'sqlcmd-sql';
 import * as xlsx from 'xlsx';
 import {Parser} from 'sv';
 
@@ -13,21 +13,12 @@ interface RawTable {
   data: string[][];
 }
 
-function createLocalConnection(database: string): Connection {
-  const db = new Connection({host: '127.0.0.1', port: 5432, database});
-  // connect db log events to local logger
-  db.on('log', (ev) => {
-    logger.debug(ev.format, ...ev.args);
-  });
-  return db;
-}
-
 /**
 Prepare a string for use as a database identifier, like a table or column name.
 
 It is idempotent (can be run multiple times with no ill effect)
 */
-export function toIdentifier(input: string) {
+export function toIdentifier(input: string): string {
   return input
     // replace # with 'id'
     .replace(/#/g, 'id')
@@ -42,8 +33,8 @@ export function toIdentifier(input: string) {
 Cut off the basename part of a filepath, without the extension, for use as a database identifier.
 */
 export function pathToIdentifier(path: string) {
-  let ext = extname(path);
-  let base = basename(path, ext);
+  const ext = extname(path);
+  const base = basename(path, ext);
   return toIdentifier(base);
 }
 
@@ -110,11 +101,10 @@ function inferColumnType(values: string[]): string {
   ].join(' ');
 }
 
-export function createTable(database: string,
-                            name: string,
+export function createTable(name: string,
                             data: string[][],
                             callback: (error?: Error) => void) {
-  const db = createLocalConnection(database);
+  const db = new Connection({outputStream: process.stdout});
   const [columns, ...rows] = data;
   const columnDeclarations = columns.map((column, i) => {
     const columnName = toIdentifier(column || `column_${i}`).toLowerCase();
@@ -132,9 +122,9 @@ export function createTable(database: string,
 
     logger.info(`Inserting ${rows.length} rows`);
     async.eachSeries(rows, (row, callback) => {
-      let args: any[] = [];
-      let values = row.map(value => {
-        let argIndex = args.push(isEmpty(value) ? null : value);
+      const args: any[] = [];
+      const values = row.map(value => {
+        const argIndex = args.push(isEmpty(value) ? null : value);
         return `$${argIndex}`;
       });
       db.executeSQL(`INSERT INTO ${tableIdentifier} VALUES (${values.join(', ')})`, args, callback);
@@ -143,9 +133,9 @@ export function createTable(database: string,
 }
 
 export function createDatabase(name: string, callback: (error?: Error) => void) {
+  const db = new Connection({outputStream: process.stdout});
   logger.info(`Creating database ${name}`);
-  const db = createLocalConnection(name);
-  return db.createDatabaseIfNotExists(callback);
+  return db.executeSQL(`CREATE DATABASE "${name}"`, [], callback);
 }
 
 /**
@@ -161,8 +151,8 @@ export function readExcel(filename: string): RawTable[] {
 }
 
 export function readSV(filename: string, callback: (error: Error, table?: RawTable) => void) {
-  let name = pathToIdentifier(filename);
-  let objects: {[index: string]: string}[] = [];
+  const name = pathToIdentifier(filename);
+  const objects = [];
   createReadStream(filename).pipe(new Parser())
   .on('error', error => callback(error))
   .on('data', object => objects.push(object))

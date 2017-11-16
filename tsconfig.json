@@ -1,14 +1,5 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES5"
-  },
   "files": [
-    "node_modules/declarations/async/async.d.ts",
-    "node_modules/declarations/node/node.d.ts",
-    "node_modules/declarations/optimist/optimist.d.ts",
-    "node_modules/declarations/pg/pg.d.ts",
-    "node_modules/declarations/xlsx/xlsx.d.ts",
     "bin/to-sql.ts",
     "excel.ts",
     "index.ts"

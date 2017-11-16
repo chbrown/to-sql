@@ -20,18 +20,21 @@
     "async": "^1.5.2",
     "loge": "1.0.4",
     "optimist": "^0.6.1",
-    "sqlcmd-pg": "1.1.1",
+    "sqlcmd-sql": "^3.0.1",
     "sv": "0.3.10",
-    "xlsx": "^0.8.0"
+    "xlsx": "^0.11.9"
   },
   "devDependencies": {
-    "declarations": "*",
-    "typescript": "*"
+    "@types/async": "^1.4.29",
+    "@types/node": "latest",
+    "@types/optimist": "latest",
+    "typescript": "^2.6.1"
   },
   "bin": {
     "to-sql": "bin/to-sql.js"
   },
   "scripts": {
-    "prepublish": "make"
+    "prepare": "tsc -t ES6 -m commonjs",
+    "clean": "tsc -m commonjs --listEmittedFiles | sed 's/^TSFILE: //' | xargs rm -v"
   }
 }

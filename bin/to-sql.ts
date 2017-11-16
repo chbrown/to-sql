@@ -60,7 +60,7 @@ function main() {
     argvparser.showHelp();
   }
   else if (argv.version) {
-    console.log(require('./package').version);
+    console.log(require('../package').version);
   }
   else {
     argv = argvparser.argv;
@@ -75,10 +75,10 @@ function main() {
         callback => {
           async.eachSeries(excelPaths, (excelPath, callback) => {
             logger.debug('reading as excel: %s', excelPath);
-            let tables = readExcel(excelPath);
+            const tables = readExcel(excelPath);
             // could be async.each, no problem, but series is easier to debug
             async.eachSeries(tables, ({name, data}, callback) => {
-              createTable(database, name, data, callback);
+              createTable(name, data, callback);
             }, callback);
           }, callback);
         },
@@ -88,7 +88,7 @@ function main() {
             readSV(svPath, (error, {name, data}) => {
               if (error) return callback(error);
 
-              createTable(database, name, data, callback);
+              createTable(name, data, callback);
             });
           }, callback);
         },
