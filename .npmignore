@@ -1,5 +1,4 @@
 bin/to-sql.ts
 excel.ts
 index.ts
-Makefile
 tsconfig.json
