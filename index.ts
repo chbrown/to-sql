@@ -14,7 +14,7 @@ interface RawTable {
 }
 
 /**
-Prepare a string for use as a database identifier, like a table or column name.
+Prepare a string for use as a SQL-friendly identifier, like a table or column name.
 
 It is idempotent (can be run multiple times with no ill effect)
 */
@@ -30,7 +30,7 @@ export function toIdentifier(input: string): string {
 }
 
 /**
-Cut off the basename part of a filepath, without the extension, for use as a database identifier.
+Cut off the basename part of a filepath, without the extension, for use as a SQL-friendly identifier.
 */
 export function pathToIdentifier(path: string) {
   const ext = extname(path);
@@ -130,12 +130,6 @@ export function createTable(name: string,
       db.executeSQL(`INSERT INTO ${tableIdentifier} VALUES (${values.join(', ')})`, args, callback);
     }, callback);
   });
-}
-
-export function createDatabase(name: string, callback: (error?: Error) => void) {
-  const db = new Connection({outputStream: process.stdout});
-  logger.info(`Creating database ${name}`);
-  return db.executeSQL(`CREATE DATABASE "${name}"`, [], callback);
 }
 
 /**

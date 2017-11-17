@@ -3,7 +3,7 @@ import {logger, Level} from 'loge';
 import * as async from 'async';
 import * as optimist from 'optimist';
 
-import {pathToIdentifier, createDatabase, createTable, readExcel, readSV} from '../index';
+import {createTable, readExcel, readSV} from '../index';
 
 function exit(error?: Error) {
   if (error) {
@@ -14,14 +14,41 @@ function exit(error?: Error) {
   process.exit(0);
 }
 
+function readFiles(excelPaths: string[],
+                   svPaths: string[],
+                   callback: (error?: Error) => void) {
+  async.parallel([
+    callback => {
+      async.eachSeries(excelPaths, (excelPath, callback) => {
+        logger.debug('reading as excel: %s', excelPath);
+        const tables = readExcel(excelPath);
+        // could be async.each, no problem, but series is easier to debug
+        async.eachSeries(tables, ({name, data}, callback) => {
+          createTable(name, data, callback);
+        }, callback);
+      }, callback);
+    },
+    callback => {
+      async.eachSeries(svPaths, (svPath, callback) => {
+        logger.debug('reading as sv: %s', svPath);
+        readSV(svPath, (error, {name, data}) => {
+          if (error) return callback(error);
+
+          createTable(name, data, callback);
+        });
+      }, callback);
+    },
+  ], callback);
+}
+
+function isExcel(name: string): boolean {
+  return /\.xlsx$/.test(name);
+}
+
 function main() {
   let argvparser = optimist
   .usage('Usage: to-sql --excel MySpreadsheet.xlsx')
   .options({
-    database: {
-      describe: 'database name to use',
-      type: 'string',
-    },
     excel: {
       describe: 'excel file to read (one table per worksheet)',
       type: 'string',
@@ -49,13 +76,6 @@ function main() {
   let argv = argvparser.argv;
   logger.level = argv.verbose ? Level.debug : Level.info;
 
-  // set the default database name if there is an excel file
-  if (argv.excel) {
-    argvparser = argvparser.default({
-      database: pathToIdentifier(argv.excel),
-    });
-  }
-
   if (argv.help) {
     argvparser.showHelp();
   }
@@ -64,36 +84,10 @@ function main() {
   }
   else {
     argv = argvparser.argv;
-    const database = argv.database;
-    const excelPaths = [...(argv.excel ? [argv.excel] : []), ...argv._.filter(arg => /\.xlsx$/.test(arg))];
-    const svPaths = [...(argv.sv || []), ...argv._.filter(arg => !/\.xlsx$/.test(arg))];
+    const excelPaths = [...(argv.excel ? [argv.excel] : []), ...argv._.filter(isExcel)];
+    const svPaths = [...(argv.sv || []), ...argv._.filter(arg => !isExcel(arg))];
 
-    createDatabase(database, error => {
-      if (error) return exit(error);
-
-      async.parallel([
-        callback => {
-          async.eachSeries(excelPaths, (excelPath, callback) => {
-            logger.debug('reading as excel: %s', excelPath);
-            const tables = readExcel(excelPath);
-            // could be async.each, no problem, but series is easier to debug
-            async.eachSeries(tables, ({name, data}, callback) => {
-              createTable(name, data, callback);
-            }, callback);
-          }, callback);
-        },
-        callback => {
-          async.eachSeries(svPaths, (svPath, callback) => {
-            logger.debug('reading as sv: %s', svPath);
-            readSV(svPath, (error, {name, data}) => {
-              if (error) return callback(error);
-
-              createTable(name, data, callback);
-            });
-          }, callback);
-        },
-      ], exit);
-    });
+    return readFiles(excelPaths, svPaths, exit);
   }
 }
 
