@@ -2,14 +2,14 @@
 
 [![npm version](https://badge.fury.io/js/to-sql.svg)](https://www.npmjs.com/package/to-sql)
 
-Node.js script to read an Excel spreadsheet into a PostgreSQL database.
+Node.js script to read `.csv`, `.tsv`, and Excel spreadsheets
+into a series of standard SQL `CREATE TABLE` and `INSERT` statements.
 
     $ npm install -g to-sql
 
 Example:
 
     $ to-sql MySpreadsheet.xlsx
-    Creating database MySpreadsheet
     Creating table Sheet1
     Inserting 171 rows
     Creating table Sheet2
@@ -28,4 +28,4 @@ It does some simple regular expression-based type inference, automatically disti
 
 ## License
 
-Copyright 2016 Christopher Brown. [MIT Licensed](http://chbrown.github.io/licenses/MIT/#2016)
+Copyright 2016-2017 Christopher Brown. [MIT Licensed](http://chbrown.github.io/licenses/MIT/#2016-2017)

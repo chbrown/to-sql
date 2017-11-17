@@ -1,7 +1,7 @@
 {
   "name": "to-sql",
   "version": "1.0.0",
-  "description": "Create SQL database from tabular data",
+  "description": "Create SQL tables and insert data from tabular file formats",
   "keywords": [
     "excel",
     "sql",
