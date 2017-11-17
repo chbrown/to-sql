@@ -1,6 +1,6 @@
 {
   "name": "to-sql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create SQL tables and insert data from tabular file formats",
   "keywords": [
     "excel",
