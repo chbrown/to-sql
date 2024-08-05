@@ -1,3 +1,2 @@
-bin/to-sql.js
-excel.js
-index.js
+*.js
+*.d.ts

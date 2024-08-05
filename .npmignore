@@ -1,4 +1,3 @@
-bin/to-sql.ts
-excel.ts
-index.ts
+*.ts
+!*.d.ts
 tsconfig.json

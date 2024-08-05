@@ -10,31 +10,28 @@
     "export"
   ],
   "homepage": "https://github.com/chbrown/to-sql",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/chbrown/to-sql.git"
-  },
-  "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
+  "repository": "github:chbrown/to-sql",
+  "author": "Christopher Brown <io@henrian.com>",
   "license": "MIT",
   "dependencies": {
-    "async": "^1.5.2",
-    "loge": "1.0.4",
+    "async": "^3.2.5",
+    "loge": "^1.0.5",
     "optimist": "^0.6.1",
-    "sqlcmd-sql": "^3.0.1",
-    "sv": "0.3.10",
+    "sqlcmd-sql": "^3.0.2",
+    "@chbrown/sv": "^0.4.4",
     "xlsx": "^0.11.9"
   },
   "devDependencies": {
-    "@types/async": "^1.4.29",
-    "@types/node": "latest",
-    "@types/optimist": "latest",
-    "typescript": "^2.6.1"
+    "@types/async": "^3.2.24",
+    "@types/node": "^22.1.0",
+    "@types/optimist": "^0.0.33",
+    "typescript": "^5.5.4"
   },
   "bin": {
     "to-sql": "bin/to-sql.js"
   },
   "scripts": {
-    "prepare": "tsc -t ES6 -m commonjs",
-    "clean": "tsc -m commonjs --listEmittedFiles | sed 's/^TSFILE: //' | xargs rm -v"
+    "prepare": "tsc --build && chmod +x bin/to-sql.js",
+    "clean": "tsc --build --clean"
   }
 }

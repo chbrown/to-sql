@@ -1,7 +1,7 @@
 {
-  "files": [
-    "bin/to-sql.ts",
-    "excel.ts",
-    "index.ts"
-  ]
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "target": "ES6"
+  }
 }

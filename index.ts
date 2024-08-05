@@ -4,7 +4,7 @@ import {createReadStream} from 'fs';
 import {logger} from 'loge';
 import {Connection} from 'sqlcmd-sql';
 import * as xlsx from 'xlsx';
-import {Parser} from 'sv';
+import {Parser} from '@chbrown/sv';
 
 import * as excel from './excel';
 
